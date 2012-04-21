@@ -19,6 +19,7 @@ Mix_Chunk *sixEnd = NULL;
 Mix_Music *music = NULL;
 
 int gunChannel = -1;
+int musicPlaying = 0;
 
 void handleKey(SDL_KeyboardEvent key);
 void shoot(Mix_Chunk *gun, Mix_Chunk *end, int type);
@@ -97,13 +98,22 @@ void handleKey(SDL_KeyboardEvent key) {
 	case SDLK_m:
 		if(key.state == SDL_PRESSED) {
 			if(music == NULL) {
+				printf("Loading song for first time.\n");
 				music = Mix_LoadMUS("music.ogg");
 				Mix_PlayMusic(music, 0);
 				Mix_HookMusicFinished(musicDone);
+			}
+			if (!musicPlaying) {
+				printf("Play\n");
+				musicPlaying = 1;
+				Mix_ResumeMusic();
 			} else {
-				Mix_HaltMusic();
-				Mix_FreeMusic(music);
-				music = NULL;
+				printf("Pause\n");
+				musicPlaying = 0;
+				Mix_PauseMusic();
+				//Mix_HaltMusic();
+				//Mix_FreeMusic(music);
+				//music = NULL;
 			}
 		}
 		break;
@@ -113,12 +123,12 @@ void handleKey(SDL_KeyboardEvent key) {
 void shoot(Mix_Chunk *gun, Mix_Chunk *end, int type) {
 	if(type == SDL_KEYDOWN) {
 		if(gunChannel < 0) {
-			gunChannel = Mix_PlayChannel(-1, gun, -1);
+			gunChannel = Mix_PlayChannel(1, gun, -1);
 		}
 	} else {
 		Mix_HaltChannel(gunChannel);
 		gunChannel = -1;
-		Mix_PlayChannel(-1, end, 0);
+		Mix_PlayChannel(1, end, 0);
 	}
 }
 
