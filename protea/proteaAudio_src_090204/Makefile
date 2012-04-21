@@ -1,15 +1,15 @@
 #--- generic settings ----------------------------------------------
 # settings for C++ compiler:
-C      = gcc
-CC     = g++
+C = gcc
+CC = g++
 CFLAGS = -O2 -Wall # -D_DEBUG -g
 INCDIR = -Irtaudio -Irtaudio/include -I../lua/src
 
 # linker settings:
-LCC    = ar
+LCC = ar
 LFLAGS = -rcs
 LNAME = libproAudio.a
-LIB    = $(LNAME)
+LIB = $(LNAME)
 LIBDIR =
 
 # settings for optional libSDL backend:
@@ -20,31 +20,29 @@ SDLDIR = -L/usr/lib -L../archive/baseCode/lib
 #--- platform specific settings ------------------------------------
 ARCH = $(shell uname -s)
 ifeq ($(ARCH),Linux)
-  LIBS          = $(LIBDIR) $(LIB) -lpthread -lasound
-  LUALIB      = -llua -ldl
-  CFLAGS += -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
-  DLLFLAGS =  -fPIC -shared
-  DLLSUFFIX = .so
-  EXESUFFIX =
-  
-else  
-  ifeq ($(ARCH),Darwin) # MacOSX
-    LIBS          = $(LIBDIR) $(LIB)
-    LUALIB      = -L/usr/local/lib -llua
-    CFLAGS += -DHAVE_GETTIMEOFDAY -D__MACOSX_CORE__
-    DLLFLAGS = -bundle 
-    DLLSUFFIX = .so
-    EXESUFFIX = .app
-    
-  else  # windows, MinGW
-    LIBS          = $(LIBDIR) $(LIB) -lole32 -ldsound -lwinmm -mconsole -s
-    LUALIB      = -L../lua/src -llua51
-    SDLLIB = -lmingw32 -lSDLmain -lSDL -mconsole -s
-    CFLAGS += -D__WINDOWS_DS__
-    DLLFLAGS =  -shared
-    DLLSUFFIX = .dll
-    EXESUFFIX = .exe
-  endif
+	LIBS = $(LIBDIR) $(LIB) -lpthread -lasound
+	LUALIB = -llua -ldl
+	CFLAGS += -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
+	DLLFLAGS = -fPIC -shared
+	DLLSUFFIX = .so
+	EXESUFFIX =
+else
+	ifeq ($(ARCH),Darwin) # MacOSX
+		LIBS = $(LIBDIR) $(LIB)
+		LUALIB = -L/usr/local/lib -llua
+		CFLAGS += -DHAVE_GETTIMEOFDAY -D__MACOSX_CORE__
+		DLLFLAGS = -bundle
+		DLLSUFFIX = .so
+		EXESUFFIX = .app
+	else # windows, MinGW
+		LIBS = $(LIBDIR) $(LIB) -lole32 -ldsound -lwinmm -mconsole -s
+		LUALIB = -L../lua/src -llua51
+		SDLLIB = -lmingw32 -lSDLmain -lSDL -mconsole -s
+		CFLAGS += -D__WINDOWS_DS__
+		DLLFLAGS = -shared
+		DLLSUFFIX = .dll
+		EXESUFFIX = .exe
+	endif
 endif
 
 #--- make targets and rules ----------------------------------------
@@ -93,8 +91,8 @@ clean:
 HDR = proAudio.h proAudioRt.h
 playAudioRt.o: playAudioRt.cpp $(HDR)
 serverAudioRt.o: serverAudioRt.cpp $(HDR)
-proAudioRt_lua.o:  proAudioRt_lua.cpp $(HDR)
-proAudio.o: proAudio.cpp proAudio.h 
+proAudioRt_lua.o: proAudioRt_lua.cpp $(HDR)
+proAudio.o: proAudio.cpp proAudio.h
 proAudioRt.o: proAudioRt.cpp $(HDR)
 stb_vorbis.o: stb_vorbis.c
 rtaudio/RtAudio.o: rtaudio/RtAudio.cpp rtaudio/RtAudio.h rtaudio/RtError.h
