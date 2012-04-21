@@ -113,7 +113,7 @@ typedef unsigned int RtAudioStreamFlags;
 static const RtAudioStreamFlags RTAUDIO_NONINTERLEAVED = 0x1;    // Use non-interleaved buffers (default = interleaved).
 static const RtAudioStreamFlags RTAUDIO_MINIMIZE_LATENCY = 0x2;  // Attempt to set stream parameters for lowest possible latency.
 static const RtAudioStreamFlags RTAUDIO_HOG_DEVICE = 0x4;        // Attempt grab device and prevent use by others.
-static const RtAudioStreamFlags RTAUDIO_SCHEDULE_REALTIME = 0x0; // Attempt to select realtime scheduling (round-robin) for the callback thread.
+static const RtAudioStreamFlags RTAUDIO_SCHEDULE_REALTIME = 0x8; // Attempt to select realtime scheduling (round-robin) for the callback thread.
 
 /*! \typedef typedef unsigned long RtAudioStreamStatus;
     \brief RtAudio stream status (over- or underflow) flags.
