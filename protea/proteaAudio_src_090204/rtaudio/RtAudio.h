@@ -113,6 +113,7 @@ typedef unsigned int RtAudioStreamFlags;
 static const RtAudioStreamFlags RTAUDIO_NONINTERLEAVED = 0x1;    // Use non-interleaved buffers (default = interleaved).
 static const RtAudioStreamFlags RTAUDIO_MINIMIZE_LATENCY = 0x2;  // Attempt to set stream parameters for lowest possible latency.
 static const RtAudioStreamFlags RTAUDIO_HOG_DEVICE = 0x4;        // Attempt grab device and prevent use by others.
+static const RtAudioStreamFlags RTAUDIO_SCHEDULE_REALTIME = 0x0; // Attempt to select realtime scheduling (round-robin) for the callback thread.
 
 /*! \typedef typedef unsigned long RtAudioStreamStatus;
     \brief RtAudio stream status (over- or underflow) flags.
@@ -282,6 +283,7 @@ class RtAudio
     RtAudio with Jack, each instance must have a unique client name.
   */
   struct StreamOptions {
+    int priority;
     RtAudioStreamFlags flags;      /*!< A bit-mask of stream flags (RTAUDIO_NONINTERLEAVED, RTAUDIO_MINIMIZE_LATENCY, RTAUDIO_HOG_DEVICE). */
     unsigned int numberOfBuffers;  /*!< Number of stream buffers. */
     std::string streamName;        /*!< A stream name (currently used only in Jack). */
@@ -551,6 +553,7 @@ public:
   virtual void stopStream( void ) = 0;
   virtual void abortStream( void ) = 0;
   long getStreamLatency( void );
+  unsigned int getStreamSampleRate( void );
   virtual double getStreamTime( void );
   bool isStreamOpen( void ) { return stream_.state != STREAM_CLOSED; };
   bool isStreamRunning( void ) { return stream_.state == STREAM_RUNNING; };

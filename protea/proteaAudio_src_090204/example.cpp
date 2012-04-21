@@ -1,17 +1,21 @@
 #include "proAudioRt.h"
 
 int main( int argc, char **argv ) {
-	// create an audio device using the RtAudio backend and default parameters:
-    DeviceAudio* audio=DeviceAudioRt::create();
-	if(!audio) return 1; // exit in case of errors
-
-	// load and play a sample:
+	// Create an audio device using the RtAudio backend and default parameters:
+	DeviceAudio* audio=DeviceAudioRt::create();
+	if(!audio) { // Exit in case of errors
+		printf("Error: Cannot Find Audio.\n");
+		return 1;
+	}
+	
+	// Load and play a sample:
 	unsigned int sample = audio->sampleFromFile("sample.ogg");
 	if(sample) audio->soundPlay(sample);
-
-    // wait until the sound has finished:
-    while(audio->soundActive()); // for the sake of simplicity busy waiting instead of a preferable sleep() call
-
+	
+	// Wait until the sound has finished:
+	// For simplicity's sake, busy wait instead of the preferable sleep() call
+	while(audio->soundActive());
+	
 	// cleanup and exit:
 	audio->destroy();
 	return 0;
