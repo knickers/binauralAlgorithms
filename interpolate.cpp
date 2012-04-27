@@ -2,12 +2,15 @@
 #include <fstream>
 #include <cmath>
 using namespace std;
-#include "bezier.h"
+#include "interpolate.h"
 
-void Interpolate::create(int size) {
+void Interpolate::create(unsigned int size) {
+	//printf("Interpolate::create(%d)\n", size);
 	// Create the array
+	//printf("  Creating new array\n");
 	mCP = new point[size];
 	// Assign the default positions
+	//printf("  Assigning default positions\n");
 	for(int i=0; i<size; i++) {
 		mCP[i].x = mCP[i].y = mCP[i].z = i;
 	}
@@ -16,106 +19,160 @@ void Interpolate::create(int size) {
 }
 
 void Interpolate::destroy() {
-	delete mCP;
-	delete mPascal;
+	//printf("Interpolate::destroy()\n");
+	if (mCP != NULL) {
+		delete mCP;
+		mCP = NULL;
+	}
+}
+
+bool Interpolate::accessorHelper() {
+	return true;
 }
 
 Interpolate::Interpolate() {
+	//printf("Interpolate::Interpolate()\n");
 	create(0);
 }
 
-Interpolate::Interpolate(int numPoints) {
+Interpolate::Interpolate(unsigned int numPoints) {
+	//printf("Interpolate::Interpolate(int numPoints)\n");
 	create(numPoints);
 }
 
 Interpolate::~Interpolate() {
+	//printf("Interpolate::~Interpolate()\n");
 	destroy();
 }
 
 bool Interpolate::AddPoint(point p) {
+	//printf("Interpolate::AddPoint(point) (%f, %f, %f)\n", p.x, p.y, p.z);
+	//printf("  Saving old data\n");
 	// Save the old data for later
 	point* save = new point[mSize];
 	for(int i=0; i<mSize; i++) {
 		save[i] = mCP[i];
 	}
+	//printf("  Resizing array\n");
 	// Resize the points array
 	destroy();
-	create(mSize+1);
+	create(mSize+1); // mSize gets reset to this new value
+	//printf("  Replacing old data\n");
 	// Copy over the old data
 	for(int i=0; i<mSize; i++) {
 		mCP[i] = save[i];
 	}
+	// Cleanup
+	delete save;
+	//printf("  Assigning new point\n");
 	// Assign the new point
-	mCP[mSize++] = p;
-	return true;
+	mCP[mSize-1] = p;
+	return accessorHelper();
 }
 
 bool Interpolate::AddPoint(float x, float y, float z) {
+	//printf("Interpolate::AddPoint(float, float, float)\n");
 	return AddPoint((point){x,y,x});
 }
 
-bool Interpolate::SetPoint(int i, point p) {
-	mCP[i] = p;
-	return true;
+bool Interpolate::SetPoint(unsigned int i, point p) {
+	if (i >= 0 && i < mSize) {
+		mCP[i] = p;
+		return accessorHelper();
+	}
+	return false;
 }
 
-bool Interpolate::SetPoint(int i, float x, float y, float z) {
-	mCP[i].x = x;
-	mCP[i].y = y;
-	mCP[i].z = z;
-	return true;
+bool Interpolate::SetPoint(unsigned int i, float x, float y, float z) {
+	if (i >= 0 && i < mSize) {
+		mCP[i].x = x;
+		mCP[i].y = y;
+		mCP[i].z = z;
+		return accessorHelper();
+	}
+	return false;
 }
 
-bool Interpolate::SetPoints(point* p, int size) {
+bool Interpolate::SetPoints(point* p, unsigned int size) {
 	destroy();
 	create(size);
 	for(int i=0; i<size; i++) {
 		mCP[i] = p[i];
 	}
-	return true;
+	return accessorHelper();
 }
 
-bool Interpolate::SetX(int i, float x) {
-	mCP[i].x = x;
-	return true;
+bool Interpolate::SetX(unsigned int i, float x) {
+	if (i >= 0 && i < mSize) {
+		mCP[i].x = x;
+		return accessorHelper();
+	}
+	return false;
 }
 
-bool Interpolate::SetY(int i, float y) {
-	mCP[i].y = y;
-	return true;
+bool Interpolate::SetY(unsigned int i, float y) {
+	if (i >= 0 && i < mSize) {
+		mCP[i].y = y;
+		return accessorHelper();
+	}
+	return false;
 }
 
-bool Interpolate::SetZ(int i, float z) {
-	mCP[i].z = z;
-	return true;
+bool Interpolate::SetZ(unsigned int i, float z) {
+	if (i >= 0 && i < mSize) {
+		mCP[i].z = z;
+		return accessorHelper();
+	}
+	return false;
+}
+
+void Interpolate::PrintPoints() {
+	for (int i=0; i<mSize; i++) {
+		printf("p%d (%f, %f, %f)\n", i, mCP[i].x, mCP[i].y, mCP[i].z);
+	}
 }
 
 //****************************************************************************//
 //********************************** Bezier **********************************//
 //****************************************************************************//
 
-void Bezier::create(int size) : create(size) {
+void Bezier::create(unsigned int size) {
+	//printf("Bezier::create(%d).\n", size);
+	// Do all the stuff the parent does first
+	Interpolate::create(size);
+	//printf("Doing bezier stuff.\n");
 	// Create the pascal coeficients
 	mPascal = GetPascal(mSize);
 }
 
-void Bezier::destroy() : destroy() {
-	delete mPascal;
+void Bezier::destroy() {
+	//printf("Bezier::destroy().\n");
+	// Do all the stuff the parent does first
+	Interpolate::destroy();
+	// Delete the pascal coeficients
+	if (mPascal != NULL) {
+		delete mPascal;
+		mPascal = NULL;
+	}
 }
 
 Bezier::Bezier() {
+	//printf("Bezier::Bezier().\n");
 	create(0);
 }
 
-Bezier::Bezier(int size) {
+Bezier::Bezier(unsigned int size) {
+	//printf("Bezier::Bezier(%d).\n", size);
 	create(size);
 }
 
 Bezier::~Bezier() {
+	//printf("Bezier::~Bezier().\n");
 	destroy();
 }
 
 point Bezier::Evaluate(float t) {
+	//printf("Bezier::Evaluate(%f).", t);
 	point result = {0,0,0};
 	for(int i=0; i<mSize; i++) {
 		result.x += mPascal[i] * mCP[i].x * pow(1-t, mSize-1-i) * pow(t, i);
@@ -157,25 +214,50 @@ bool outputBezier(point start, point control, point end, int resolution) {
 //********************************** Linear **********************************//
 //****************************************************************************//
 
-void Linear::create(int size) : create(size) {
-	// Create the lengths between each set of points. Last length is the total
-	mLength = new float[size];
-	mLength[size-1] = 0;
-	for (int i=0; i<size-1; i++) {
-		mLength[i] = dist(mCP[i], mCP[i+1]);
-		mLength[size-1] += mLength[i];
+void Linear::create(unsigned int size) {
+	// Do all the stuff the parent does first
+	Interpolate::create(size);
+	if (size > 0) {
+		mLength = new float[size-1];
+	} else {
+		mLength = new float[size];
 	}
 }
 
-void Linear::destroy() : destroy() {
-	delete mLength;
+void Linear::destroy() {
+	// Do all the stuff the parent does first
+	Interpolate::destroy();
+	if (mLength != NULL) {
+		delete mLength;
+		mLength = NULL;
+	}
+}
+
+bool Linear::accessorHelper() {
+	calcLengths();
+	return true;
+}
+
+// Calculate the lengths between each set of points. Lengths are running total
+// [0..1] = dist(0, 1)
+// [1..2] = dist(0, 1) + dist(1, 2)
+// [2..3] = dist(0, 1) + dist(1, 2) + dist(2, 3)
+void Linear::calcLengths() {
+	//printf("Linear::CalcLengths()\n");
+	float total=0, length=0;
+	for (int i=0; i<mSize-1; i++) {
+		length = dist(mCP[i], mCP[i+1]);
+		total += length;
+		mLength[i] = total;
+		//printf("  %d) dist(%d,%d)=%f total=%f\n", i, i,i+1, length, total);
+	}
 }
 
 Linear::Linear() {
 	create(0);
 }
 
-Linear::Linear(int size) {
+Linear::Linear(unsigned int size) {
 	create(size);
 }
 
@@ -184,5 +266,23 @@ Linear::~Linear() {
 }
 
 point Linear::Evaluate(float t) {
-	return (point){0,0,0};
+	//printf("Linear::Evaluate(%f).", t);
+	int i = 0;
+	for (i; i<mSize-1; i++) {
+		//printf("%f ", mLength[i]/mLength[mSize-2]);
+		if (t < mLength[i]/mLength[mSize-2]) {
+			break;
+		}
+	}
+	//printf("%d",i);
+	float a = 0;
+	if (i > 0)
+		a = mLength[i-1]/mLength[mSize-2]; // Percentage length to first point
+	float b = mLength[i]/mLength[mSize-2]; // Percentage length to second point
+	float s = (t-a) / (b-a); // Percentage of the length between the points
+	point p;
+	p.x = mCP[i].x + s*(mCP[i+1].x - mCP[i].x);
+	p.y = mCP[i].y + s*(mCP[i+1].y - mCP[i].y);
+	p.z = mCP[i].z + s*(mCP[i+1].z - mCP[i].z);
+	return p;
 }
