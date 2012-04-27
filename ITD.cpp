@@ -1,12 +1,5 @@
 #include <cmath>
-
-#define PI = 3.141592653589793;
-
-float dist(float Lx, float Ly, float Rx, float Ry) {
-	float x = Rx - Lx;
-	float y = Ry - Ly;
-	return sqrt(x*x + y*y);
-}
+#include "common.h"
 
 struct ITLD {
 	float ITD, ILD;

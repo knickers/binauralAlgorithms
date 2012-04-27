@@ -1,32 +1,31 @@
-#pragma once;
+#pragma once
 
 using namespace std;
-
-struct point {
-	float x,y,z;
-};
+#include "common.h"
 
 class Interpolate {
 protected:
 	int  mSize;
 	point* mCP;
 	
-	virtual void create(int size);
+	virtual void create(unsigned int size);
 	virtual void destroy();
+	virtual bool accessorHelper();
 public:
 	Interpolate();
-	Interpolate(int numPoints);
-	~Interpolate();
+	Interpolate(unsigned int numPoints);
+	virtual ~Interpolate();
 	virtual point Evaluate(float t)=0;
 	
 	bool AddPoint(point p);
 	bool AddPoint(float x, float y, float z);
-	bool SetPoint(int i, point p);
-	bool SetPoint(int i, float x, float y, float z);
-	bool SetPoints(point* p, int size);
-	bool SetX(int i, float x);
-	bool SetY(int i, float y);
-	bool SetZ(int i, float z);
+	bool SetPoint(unsigned int i, point p);
+	bool SetPoint(unsigned int i, float x, float y, float z);
+	bool SetPoints(point* p, unsigned int size);
+	bool SetX(unsigned int i, float x);
+	bool SetY(unsigned int i, float y);
+	bool SetZ(unsigned int i, float z);
+	void PrintPoints();
 };
 
 class Bezier : public Interpolate {
@@ -34,12 +33,12 @@ private:
 	int* mPascal;
 	point EvalCurve(float t, point* p, int size, int* pasc);
 	
-	virtual void create(int size);
+	virtual void create(unsigned int size);
 	virtual void destroy();
 public:
 	Bezier();
-	Bezier(int size);
-	~Bezier();
+	Bezier(unsigned int size);
+	virtual ~Bezier();
 	virtual point Evaluate(float t);
 };
 int* GetPascal(int width);
@@ -50,11 +49,13 @@ class Linear : public Interpolate {
 private:
 	float* mLength;
 	
-	virtual void create(int size);
+	virtual void create(unsigned int size);
 	virtual void destroy();
+	virtual bool accessorHelper();
+	void calcLengths();
 public:
 	Linear();
-	Linear(int size);
+	Linear(unsigned int size);
 	~Linear();
 	virtual point Evaluate(float t);
 };
