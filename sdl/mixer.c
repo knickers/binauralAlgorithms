@@ -39,6 +39,7 @@ int main(void) {
 		printf("Unable to open audio!\n");
 		exit(1);
 	}
+	printf("Press the following keys to play sounds:\n  m  = Play/Pause the background music\n  p  = Hold down to play a phaser sound effect\n 1-6 = Hold down to play different gunshot sound effects\n");
 	/* Pre-load sound effects */
 	phaser = Mix_LoadWAV("phaser.wav");
 	one = Mix_LoadWAV("sounds/1.wav");
@@ -98,7 +99,6 @@ void handleKey(SDL_KeyboardEvent key) {
 	case SDLK_m:
 		if(key.state == SDL_PRESSED) {
 			if(music == NULL) {
-				printf("Loading song for first time.\n");
 				music = Mix_LoadMUS("music.ogg");
 				Mix_PlayMusic(music, 0);
 				Mix_HookMusicFinished(musicDone);
