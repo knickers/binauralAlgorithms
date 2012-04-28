@@ -1,14 +1,18 @@
 #include <cmath>
 #include "common.h"
 
+// Interaural Time/Level Difference
 struct ITLD {
 	float ITD, ILD;
 };
 
-// Calculates the Interaraul Time Delay for the diven source point with the
-//   listener being at the origin.
-// Return value: <0 = delay the left side  >0 delay the right side
-float ITD(float x, float y) {
+// Calculates the Interaraul Time Delay and Interaural Level Difference for the
+// given source point, the listener being at the origin.
+// Return value: Delay in seconds
+//  <0 = Source is on the right side, delay left side
+//   0 = Source is in the middle, no delay
+//  >0 = Source is on the left side, delay right side
+ITLD TimeLevelDiff(float x, float y) {
 	// All lengths are in meters, all angles are in radians
 	static float S = 340.29;  // Speed of sound at sea level in meters / second
 	static float E = 0.16;    // Distance between the ears (average of 16 cm)
@@ -29,9 +33,10 @@ float ITD(float x, float y) {
 		R = sin(A)*D + H*(atan2(y,x)-A);
 	}
 	
+	ITLD diff;
 	// The difference between the distances, converted to seconds
-	// <0 = Source on the left side
-	//  0 = Source is in the middle
-	// >0 = source on the right side
-	return (L - R)/S;
+	diff.ITD = (L - R)/S;
+	// Find some decent function
+	diff.ILD = 0;
+	return diff;
 }
