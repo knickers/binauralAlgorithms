@@ -14,15 +14,15 @@ LIBDIR =
 
 # settings for optional libSDL backend:
 INCDIR += -I../archive/baseCode/include
-SDLLIB = -lSDLmain -lSDL
-SDLDIR = -L/usr/lib -L../archive/baseCode/lib
+SDLLIB = $(shell sdl-config --libs)
+SDLDIR = $(shell sdl-config --cflags)
 
 #--- platform specific settings ------------------------------------
 ARCH = $(shell uname -s)
 ifeq ($(ARCH),Linux)
 	LIBS = $(LIBDIR) $(LIB) -lpthread -lasound
 	LUALIB = -llua -ldl
-	CFLAGS += -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
+	CFLAGS += $(shell sdl-config --cflags) -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
 	DLLFLAGS = -fPIC -shared
 	DLLSUFFIX = .so
 	EXESUFFIX =
@@ -67,10 +67,6 @@ example$(EXESUFFIX) : example.o
 playAudioRt$(EXESUFFIX) : playAudioRt.o
 	$(CC) $^ $(LIBS) -o $@
 
-# binaural example
-binaural$(EXESUFFIX) : binaural.o
-	$(CC) $^ $(LIBS) -o $@
-
 # optional Lua frontend
 lua: proAudioRt$(DLLSUFFIX)
 
@@ -78,9 +74,12 @@ proAudioRt$(DLLSUFFIX): proAudioRt_lua.o
 	$(CC) -o $@ $(DLLFLAGS) $^ $(LIBS) $(LUALIB)
 
 # example for optional libSDL backend
-sdl: playAudioSdl$(EXESUFFIX)
+sdl: playAudioSdl$(EXESUFFIX) binaural$(EVESUFFIX)
 
 playAudioSdl$(EXESUFFIX): playAudioSdl.o proAudio.o proAudioSdl.o stb_vorbis.o
+	$(CC) $(CFLAGS) $^ $(SDLDIR) $(SDLLIB) -o $@
+
+binaural$(EXESUFFIX) : binaural.o proAudio.o proAudioSdl.o stb_vorbis.o
 	$(CC) $(CFLAGS) $^ $(SDLDIR) $(SDLLIB) -o $@
 
 # generic rules
