@@ -171,7 +171,8 @@ int DeviceAudioRt::mixOutputFloat(signed short *outputBuffer, unsigned int nFram
 		float right=0.0f;
 		for (unsigned int i=0; i<m_nSound; ++i ) if(ma_sound[i].isPlaying) {
 			unsigned int nChannels = ma_sound[i].sample->channels();
-			if((ma_sound[i].pitch==1.0f)&&!ma_sound[i].disparity) { // use optimized default mixing:
+			// Use optimized default mixing:
+			if((ma_sound[i].pitch==1.0f) && !ma_sound[i].disparity) {
 				unsigned int currPos=ma_sound[i].dpos+j;
 				if(ma_sound[i].isLoop) currPos%=ma_sound[i].dlen;
 				else if(currPos >= ma_sound[i].dlen) continue;
@@ -180,14 +181,15 @@ int DeviceAudioRt::mixOutputFloat(signed short *outputBuffer, unsigned int nFram
 				left += dataL * m_volL*ma_sound[i].volL;
 				float dataR = (nChannels>1) ? (float)(*((signed short *)(&ma_sound[i].sample->data()[currPos+2]))) : dataL;
 				right+= dataR * m_volR*ma_sound[i].volR;
-			}
-			else { // use nearest sample and disparity:
-				double fract=ma_sound[i].dpos+j*ma_sound[i].pitch;
-				unsigned int currPos=(unsigned int)fract;
+			// Use nearest sample and disparity:
+			} else {
+				double fract = ma_sound[i].dpos+j*ma_sound[i].pitch;
+				unsigned int currPos = (unsigned int)fract;
 				fract = fmod(fract,1.0);
 				int currPosL= (ma_sound[i].disparity<0.0f) ? currPos+int(m_freqOut*ma_sound[i].disparity) : currPos;
 				int currPosR= (ma_sound[i].disparity>0.0f) ? currPos-int(m_freqOut*ma_sound[i].disparity) : currPos;
-				if(nChannels>1) currPosR+=sizeof(signed short); // use second channel
+				// use second channel
+				if(nChannels>1) currPosR += sizeof(signed short);
 				if(ma_sound[i].isLoop) {
 					currPosL+=ma_sound[i].dlen;
 					currPosL%=ma_sound[i].dlen;
@@ -196,40 +198,35 @@ int DeviceAudioRt::mixOutputFloat(signed short *outputBuffer, unsigned int nFram
 				}
 				if(currPosL<0) {
 					// do nothing
-				}
-				else if((unsigned int)currPosL+1 < ma_sound[i].dlen) {
+				} else if((unsigned int)currPosL+1 < ma_sound[i].dlen) {
 					currPosL*=ma_sound[i].sample->sizeFrame();
 					float dataL = (1.0f-(float)fract)*(float)(*((signed short *)(&ma_sound[i].sample->data()[currPosL])))
 						+ (float)fract*(float)(*((signed short *)(&ma_sound[i].sample->data()[currPosL+ma_sound[i].sample->sizeFrame()])));
 					left += dataL * m_volL*ma_sound[i].volL;
-				}
-				else if((unsigned int)currPosL+1 == ma_sound[i].dlen) {
+				} else if((unsigned int)currPosL+1 == ma_sound[i].dlen) {
 					currPosL*=ma_sound[i].sample->sizeFrame();
 					float dataL = (float)(*((signed short *)(&ma_sound[i].sample->data()[currPosL])));
 					left += dataL * m_volL*ma_sound[i].volL;
 				}
-				
 				if(currPosR<0) {
 					// do nothing
-				}
-				else if((unsigned int)currPosR+1 < ma_sound[i].dlen) {
+				} else if((unsigned int)currPosR+1 < ma_sound[i].dlen) {
 					currPosR*=ma_sound[i].sample->sizeFrame();
 					float dataR = (1.0f-(float)fract)*(float)(*((signed short *)(&ma_sound[i].sample->data()[currPosR])))
 						+ (float)fract*(float)(*((signed short *)(&ma_sound[i].sample->data()[currPosR+ma_sound[i].sample->sizeFrame()])));
 					right += dataR * m_volR*ma_sound[i].volR;
-				}
-				else if((unsigned int)currPosR+1 == ma_sound[i].dlen) {
+				} else if((unsigned int)currPosR+1 == ma_sound[i].dlen) {
 					currPosR*=ma_sound[i].sample->sizeFrame();
 					float dataR = (float)(*((signed short *)(&ma_sound[i].sample->data()[currPosR])));
 					right += dataR * m_volR*ma_sound[i].volR;
 				}
 			}
 		}
-		// clamp and set output:
+		// Clamp and set output:
 		outputBuffer[2*j] = left>SHRT_MAX ? SHRT_MAX : left<SHRT_MIN ? SHRT_MIN : (signed short)left;
 		outputBuffer[2*j+1] = right>SHRT_MAX ? SHRT_MAX : right<SHRT_MIN ? SHRT_MIN : (signed short)right;
 	}
-	// calculate new pos:
+	// Calculate new pos:
 	for (unsigned int i=0; i<m_nSound; ++i ) {
 		if(ma_sound[i].pitch==1.0f) ma_sound[i].dpos += nFrames;
 		else ma_sound[i].dpos += (unsigned int)(nFrames*ma_sound[i].pitch);
