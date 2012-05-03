@@ -68,7 +68,7 @@ public:
 
 	/// changes volume by given factor
 	void volume(float f);
-	
+
 	/// loads a WAV file
 	static AudioSample* loadWav(const std::string & fname);
 	/// reads WAV data from a stream via a function compatible to std::fread
@@ -117,31 +117,28 @@ public:
 	virtual const AudioSample* sample(unsigned int handle) const { return 0; }
 	
 	/// plays a specified sound sample once and sets its parameters
-	/*
-	\param sample  handle of a previously loaded sample
-	\param volumeL (optional) left volume
-	\param volumeR (optional) right volume
-	\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
-	\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
-	\return a handle to the currently played sound or -1 in case of error */
+	/*  \param sample  handle of a previously loaded sample
+		\param volumeL (optional) left volume
+		\param volumeR (optional) right volume
+		\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
+		\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
+		\return a handle to the currently played sound or -1 in case of error */
 	virtual unsigned int soundPlay(unsigned int sample, float volumeL=1.0f, float volumeR=1.0f, float disparity=0.0f, float pitch=1.0f )=0;
 	/// plays a specified sound sample continuously and sets its parameters
-	/*
-	\param sample  handle of a previously loaded sample
-	\param volumeL (optional) left volume
-	\param volumeR (optional) right volume
-	\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
-	\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
-	\return a handle to the currently played sound or -1 in case of error */
+	/*  \param sample  handle of a previously loaded sample
+		\param volumeL (optional) left volume
+		\param volumeR (optional) right volume
+		\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
+		\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
+		\return a handle to the currently played sound or -1 in case of error */
 	virtual unsigned int soundLoop(unsigned int sample, float volumeL=1.0f, float volumeR=1.0f, float disparity=0.0f, float pitch=1.0f )=0;
 	/// updates parameters of a specified sound
-	/*
-	\param sound  handle of a currently active sound
-	\param volumeL left volume
-	\param volumeR right volume
-	\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
-	\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
-	\return true in case the parameters have been updated successfully */
+	/*  \param sound  handle of a currently active sound
+		\param volumeL left volume
+		\param volumeR right volume
+		\param disparity (optional) time difference between left and right channel in seconds. Use negative values to specify a delay for the left channel, positive for the right.
+		\param pitch (optional) pitch factor for playback. 0.5 corresponds to one octave below, 2.0 to one above the original sample.
+		\return true in case the parameters have been updated successfully */
 	virtual bool soundUpdate(unsigned int sound, float volumeL, float volumeR, float disparity=0.0f, float pitch=1.0f )=0;
 	/// stops a specified sound immediately
 	virtual bool soundStop(unsigned int sound)=0;
@@ -149,6 +146,12 @@ public:
 	virtual void soundStop()=0;
 	/// returns number of currently active sounds
 	virtual unsigned int soundActive() const=0;
+	/// returns the length of the sound in seconds
+	virtual unsigned int soundLength(unsigned int sound);
+	/// returns current elapsed time in seconds
+	virtual unsigned int soundTime(unsigned int sound);
+	/// sets current elapsed time in seconds
+	virtual bool soundTime(unsigned int sound, unsigned int time);
 
 protected:
 	/// constructor
@@ -156,6 +159,8 @@ protected:
 	/// destructor
 	virtual ~DeviceAudio() { s_instance = 0; }
 	
+	/// stores current position
+	unsigned int m_currPos;
 	/// stores output stream frequency
 	unsigned int m_freqOut;
 	/// stores left master volume

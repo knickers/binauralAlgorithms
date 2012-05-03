@@ -47,23 +47,16 @@ endif
 
 #--- make targets and rules ----------------------------------------
 
-ALL = $(LNAME) binaural$(EVESUFFIX)
+# example for optional libSDL backend
+sdl: binaural$(EXESUFFIX)
+
+ALL = $(LNAME) binaural$(EXESUFFIX)
 all: $(ALL)
 
-# static library
-OBJ = proAudio.o proAudioRt.o stb_vorbis.o rtaudio/RtAudio.o
-$(LNAME) : $(OBJ)
-	$(LCC) $(LFLAGS) $@ $^
-
-# example for optional libSDL backend
-sdl: binaural$(EVESUFFIX)
-
-binaural$(EXESUFFIX) : binaural.o proAudio.o proAudioSdl.o stb_vorbis.o
+binaural$(EXESUFFIX) : binaural.o proAudio.o proAudioSdl.o stb_vorbis.o interpolate.o common.o ITLD.o
 	$(CC) $(CFLAGS) $^ $(SDLDIR) $(SDLLIB) -o $@
 
 # generic rules
-.c.o:
-	$(C) $(CFLAGS) $(INCDIR) -c $< -o $@
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 clean:
@@ -72,5 +65,8 @@ clean:
 #--- project specific dependencies ---------------------------------
 stb_vorbis.o: stb_vorbis.c
 proAudio.o: proAudio.cpp proAudio.h
-binaural.o: binaural.cpp proAudioSdl.h proAudio.h
+binaural.o: binaural.cpp proAudioSdl.h proAudio.h ITLD.h ITLD.cpp common.h common.cpp interpolate.h interpolate.cpp
+ITLD.o: common.h common.cpp
+common.o: common.h common.cpp
+interpolate.o: interpolate.h interpolate.cpp
 proAudioSdl.o: proAudioSdl.cpp proAudioSdl.h proAudio.h

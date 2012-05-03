@@ -165,3 +165,15 @@ bool DeviceAudio::loaderRegister(AudioSample *(*loadFunc)(const std::string &), 
 bool DeviceAudio::loaderAvailable(const std::string & suffix) const {
 	return mm_loader.find(toLower(suffix))!=mm_loader.end();
 }
+
+virtual unsigned int soundLength(unsigned int sound) {
+	return 0;
+}
+
+virtual unsigned int soundTime(unsigned int sound) {
+	return 0;
+}
+
+virtual bool soundTime(unsigned int sound, unsigned int time) {
+	return 0;
+}

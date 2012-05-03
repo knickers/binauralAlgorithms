@@ -55,9 +55,9 @@ DeviceAudioSdl::DeviceAudioSdl(unsigned int nTracks, unsigned int frequency, uns
 
 	// set the audio format:
 	SDL_AudioSpec desired;
-	desired.freq	 = frequency;
+	desired.freq     = frequency;
 	desired.format   = AUDIO_S16;
-	desired.channels = 2;	// 1 = mono, 2 = stereo
+	desired.channels = 2;    // 1 = mono, 2 = stereo
 	desired.samples  = chunkSize;  // good low-latency value for callback
 	desired.callback = cbOutput;
 	desired.userdata = NULL;
@@ -99,7 +99,8 @@ void DeviceAudioSdl::mixOutputFloat(signed short *outputBuffer, unsigned int nFr
 		float left=0.0f;
 		float right=0.0f;
 		for (unsigned int i=0; i<m_nSound; ++i ) if(ma_sound[i].isPlaying) {
-			if((ma_sound[i].pitch==1.0f)&&!ma_sound[i].disparity) { // use optimized default mixing:
+			// use optimized default mixing:
+			if((ma_sound[i].pitch==1.0f)&&!ma_sound[i].disparity) {
 				unsigned int currPos=ma_sound[i].dpos+j;
 				if(ma_sound[i].isLoop) currPos%=ma_sound[i].dlen;
 				else if(currPos >= ma_sound[i].dlen) continue;
@@ -107,8 +108,8 @@ void DeviceAudioSdl::mixOutputFloat(signed short *outputBuffer, unsigned int nFr
 					*m_volL*ma_sound[i].volL;
 				right+=float(*((Sint16 *)(&ma_sound[i].data[currPos])))
 					*m_volR*ma_sound[i].volR;
-			}
-			else { // use linear interpolation and disparity:
+			// use linear interpolation and disparity:
+			} else {
 				double fract=ma_sound[i].dpos+j*ma_sound[i].pitch;
 				int currPos=int(fract*0.5f)*2;
 				fract=(fract-currPos)*0.5f;
