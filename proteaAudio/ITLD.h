@@ -1,9 +1,14 @@
 #pragma once
 #include "common.h"
 
+// Interaural Level Difference
+struct level {
+	double l, r;
+};
 // Interaural Time/Level Difference
 struct ITLD {
-	double ITD, ILD;
+	double ITD;
+	level ILD;
 };
 
 // Calculates the Interaraul Time Delay and Interaural Level Difference for the
