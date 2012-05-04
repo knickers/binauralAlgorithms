@@ -1,0 +1,2 @@
+all:
+	g++ -o binaural binaural.cpp proAudio.cpp proAudioSdl.cpp stb_vorbis.c `sdl-config --cflags --libs`
