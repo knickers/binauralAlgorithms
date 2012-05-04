@@ -15,8 +15,15 @@ using namespace std;
 class _AudioTrack {
 public:
 	/// default constructor
-	_AudioTrack(Uint8 * pData=0, unsigned int length=0) : data(pData), dlen(length) {
-		dpos=0; disparity=0.0f; volL=1.0f; volR=1.0f; pitch=1.0f; isLoop=false; isPlaying=false; };
+	_AudioTrack(Uint8* pData=0,unsigned int length=0):data(pData),dlen(length) {
+		dpos=0;
+		disparity=0.0f;
+		volL=1.0f;
+		volR=1.0f;
+		pitch=1.0f;
+		isLoop=false;
+		isPlaying=false;
+	};
 	/// pointer to raw sample data
 	Uint8 *data;
 	/// position in playback
@@ -102,8 +109,11 @@ void DeviceAudioSdl::mixOutputFloat(signed short *outputBuffer, unsigned int nFr
 			// use optimized default mixing:
 			if((ma_sound[i].pitch==1.0f)&&!ma_sound[i].disparity) {
 				unsigned int currPos=ma_sound[i].dpos+j;
-				if(ma_sound[i].isLoop) currPos%=ma_sound[i].dlen;
-				else if(currPos >= ma_sound[i].dlen) continue;
+				if (ma_sound[i].isLoop) {
+					currPos%=ma_sound[i].dlen;
+				} else if (currPos >= ma_sound[i].dlen) {
+					continue;
+				}
 				left +=float(*((Sint16 *)(&ma_sound[i].data[currPos])))
 					*m_volL*ma_sound[i].volL;
 				right+=float(*((Sint16 *)(&ma_sound[i].data[currPos])))
@@ -287,4 +297,20 @@ unsigned int DeviceAudioSdl::soundActive() const {
 	for ( i=0; i<m_nSound; ++i )
 		if (ma_sound[i].isPlaying) ++ret;
 	return ret;
+}
+
+double DeviceAudioSdl::soundLength(unsigned int sound) {
+	return (double)ma_sound[sound-1].dlen / (double)m_freqOut;
+}
+
+double DeviceAudioSdl::soundTime(unsigned int sound) {
+	return (double)ma_sound[sound-1].dpos / (double)m_freqOut;
+}
+
+bool DeviceAudioSdl::soundTime(unsigned int sound, double time) {
+	if (time >= 0 && time < soundLength(sound)) {
+		ma_sound[sound-1].dpos = (unsigned)(time * m_freqOut);
+		return true;
+	}
+	return false;
 }

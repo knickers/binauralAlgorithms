@@ -66,6 +66,12 @@ public:
 	virtual void soundStop();
 	/// returns number of currently active sounds
 	virtual unsigned int soundActive() const;
+	/// returns the length of the sound in seconds
+	virtual double soundLength(unsigned int sound);
+	/// returns current elapsed time in seconds
+	virtual double soundTime(unsigned int sound);
+	/// sets current elapsed time in seconds
+	virtual bool soundTime(unsigned int sound, double time);
 protected:
 	/// constructor. Use the create() method instead
 	DeviceAudioSdl(unsigned int nTracks, unsigned int frequency, unsigned int chunkSize);

@@ -147,11 +147,11 @@ public:
 	/// returns number of currently active sounds
 	virtual unsigned int soundActive() const=0;
 	/// returns the length of the sound in seconds
-	virtual unsigned int soundLength(unsigned int sound);
+	virtual double soundLength(unsigned int sound)=0;
 	/// returns current elapsed time in seconds
-	virtual unsigned int soundTime(unsigned int sound);
+	virtual double soundTime(unsigned int sound)=0;
 	/// sets current elapsed time in seconds
-	virtual bool soundTime(unsigned int sound, unsigned int time);
+	virtual bool soundTime(unsigned int sound, double time)=0;
 
 protected:
 	/// constructor
@@ -159,8 +159,8 @@ protected:
 	/// destructor
 	virtual ~DeviceAudio() { s_instance = 0; }
 	
-	/// stores current position
-	unsigned int m_currPos;
+	/// stores the length of the song in bytes
+	unsigned int m_length;
 	/// stores output stream frequency
 	unsigned int m_freqOut;
 	/// stores left master volume
