@@ -27,14 +27,20 @@ int main(int argc, char **argv) {
 	b.setPoint(1, 0,1,0);
 	b.setPoint(2, -1,0,0);
 	
-	float time = 1.0;
+	double time = 0;
+	double length = audio->soundLength(sample1);
 	ITLD diff = TimeLevelDiff(b.Evaluate(time));
-	printf("ITD = %f", diff.ITD);
-	fflush(stdout);
+	
 	// main loop:
 	while(audio->soundActive()) {
-		diff = TimeLevelDiff(b.Evaluate(time));
+		time = audio->soundTime(sample1);
+		diff = TimeLevelDiff(b.Evaluate(time/length));
+		
 		audio->soundUpdate(sample1, 1.0f,1.0f, diff.ITD,1.0f);
+		
+		printf("ITD = %f TIME = %f/%f\r", diff.ITD, time, length);
+		fflush(stdout);
+		
 		SDL_Delay(1);
 	}
 	
