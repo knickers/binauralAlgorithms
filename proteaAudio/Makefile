@@ -22,7 +22,7 @@ ARCH = $(shell uname -s)
 ifeq ($(ARCH),Linux)
 	LIBS = $(LIBDIR) $(LIB) -lpthread -lasound
 	LUALIB = -llua -ldl
-	CFLAGS += $(shell sdl-config --cflags) -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
+	CFLAGS += $(SDLDIR) -DHAVE_GETTIMEOFDAY -D__LINUX_ALSA__ #-D__LINUX_OSS__
 	DLLFLAGS = -fPIC -shared
 	DLLSUFFIX = .so
 	EXESUFFIX =
@@ -30,15 +30,14 @@ else
 	ifeq ($(ARCH),Darwin) # MacOSX
 		LIBS = $(LIBDIR) $(LIB)
 		LUALIB = -L/usr/local/lib -llua
-		CFLAGS += -DHAVE_GETTIMEOFDAY -D__MACOSX_CORE__
+		CFLAGS += $(SDLDIR) -DHAVE_GETTIMEOFDAY -D__MACOSX_CORE__
 		DLLFLAGS = -bundle
 		DLLSUFFIX = .so
 		EXESUFFIX = .app
 	else # windows, MinGW
 		LIBS = $(LIBDIR) $(LIB) -lole32 -ldsound -lwinmm -mconsole -s
 		LUALIB = -L../lua/src -llua51
-		SDLLIB = -lmingw32 -lSDLmain -lSDL -mconsole -s
-		CFLAGS += -D__WINDOWS_DS__
+		CFLAGS += $(SDLDIR) -D__WINDOWS_DS__
 		DLLFLAGS = -shared
 		DLLSUFFIX = .dll
 		EXESUFFIX = .exe
